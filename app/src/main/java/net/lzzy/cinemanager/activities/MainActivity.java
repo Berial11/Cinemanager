@@ -16,13 +16,20 @@ import android.widget.TextView;
 import net.lzzy.cinemanager.R;
 import net.lzzy.cinemanager.fragments.AddCinemaFragment;
 import net.lzzy.cinemanager.fragments.AddOrderFragment;
+import net.lzzy.cinemanager.fragments.BaseFragment;
 import net.lzzy.cinemanager.fragments.CinemasFragment;
+import net.lzzy.cinemanager.fragments.OnFragmentInteractionListener;
 import net.lzzy.cinemanager.fragments.OrdersFragment;
+import net.lzzy.cinemanager.models.Cinema;
+import net.lzzy.cinemanager.models.Order;
+import net.lzzy.cinemanager.utils.ViewUtils;
 
 /**
  * @author Administrator
  */
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener
+        , OnFragmentInteractionListener,AddCinemaFragment.OnCinemaCreatedListener
+,AddOrderFragment.OnOrderCreatedListener{
     private FragmentManager manager =getSupportFragmentManager();
     private LinearLayout layoutMenu;
     private TextView tvTitle;
@@ -38,9 +45,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         setTitleMenu();
+        searchView.setOnQueryTextListener(new ViewUtils.AbstractQueryHandler() {
+            @Override
+            public boolean handleQuery(String kw) {
+                Fragment fragment=manager.findFragmentById(R.id.fragment_container);
+                if (fragment!=null){
+                    if (fragment instanceof BaseFragment){
+                        ((BaseFragment)fragment).search(kw);
+                    }
+                }
+                return true;
+            }
+        });
     }
 
     private void setTitleMenu(){
+
         titleArray.put(R.id.bar_title_tv_add_cinema,"添加影院");
         titleArray.put(R.id.bar_title_tv_view_cinema,"影院列表");
         titleArray.put(R.id.bar_title_tv_add_order,"添加订单");
@@ -74,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
+        searchView.setVisibility(View.VISIBLE);
         layoutMenu.setVisibility(View.GONE);
         tvTitle.setText(titleArray.get(v.getId()));
         FragmentTransaction transaction=manager.beginTransaction();
@@ -93,17 +114,88 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Fragment createFragment(int id) {
         switch (id){
             case R.id.bar_title_tv_add_cinema:
+
                 return new AddCinemaFragment();
             case R.id.bar_title_tv_view_cinema:
+
                 return new CinemasFragment();
             case R.id.bar_title_tv_add_order:
+
                 return new AddOrderFragment();
             case R.id.bar_title_tv_my_order:
+
                 return new OrdersFragment();
             default:
                 break;
         }
 
         return null;
+    }
+
+    @Override
+    public void hideSearch() {
+        searchView.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void cancelAddCinema() {
+        Fragment addCinemaFragment=fragmentArray.get(R.id.bar_title_tv_add_cinema);
+        if (addCinemaFragment==null){
+            return;
+        }
+        Fragment cinemasFragment=fragmentArray.get(R.id.bar_title_tv_view_cinema);
+        FragmentTransaction transaction=manager.beginTransaction();
+        if (cinemasFragment==null){
+            cinemasFragment=new CinemasFragment();
+            fragmentArray.put(R.id.bar_title_tv_view_cinema,cinemasFragment);
+            transaction.add(R.id.fragment_container,cinemasFragment);
+
+        }
+        transaction.hide(addCinemaFragment).show(cinemasFragment).commit();
+        tvTitle.setText(titleArray.get(R.id.bar_title_tv_view_cinema));
+    }
+
+    @Override
+    public void saveCinema(Cinema cinema) {
+        Fragment addCinemaFragment=fragmentArray.get(R.id.bar_title_tv_add_cinema);
+        if (addCinemaFragment==null){
+            return;
+        }
+        Fragment cinemasFragment=fragmentArray.get(R.id.bar_title_tv_view_cinema);
+        FragmentTransaction transaction=manager.beginTransaction();
+        if (cinemasFragment==null){
+            //创建CinemasFragment同时要传Cinema对象
+            cinemasFragment=new CinemasFragment(cinema);
+            fragmentArray.put(R.id.bar_title_tv_view_cinema,cinemasFragment);
+            transaction.add(R.id.fragment_container,cinemasFragment);
+        }else {
+            ((CinemasFragment)cinemasFragment).save(cinema);
+        }
+        transaction.hide(addCinemaFragment).show(cinemasFragment).commit();
+        tvTitle.setText(titleArray.get(R.id.bar_title_tv_view_cinema));
+
+
+    }
+
+
+    @Override
+    public void cancelAddOrder() {
+        Fragment addOrderFragment=fragmentArray.get(R.id.bar_title_tv_add_order);
+        if (addOrderFragment==null){
+            return;
+        }
+        Fragment orderFragment=fragmentArray.get(R.id.bar_title_tv_my_order);
+        FragmentTransaction transaction=manager.beginTransaction();
+        if (orderFragment==null){
+            orderFragment=new OrdersFragment();
+            fragmentArray.put(R.id.bar_title_tv_my_order,orderFragment);
+            //2019年4月1日12:10:32
+        }
+
+    }
+
+    @Override
+    public void saveOrder(Order order) {
+
     }
 }

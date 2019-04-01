@@ -1,5 +1,6 @@
 package net.lzzy.cinemanager.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -35,9 +36,12 @@ public class AddCinemaFragment extends BaseFragment {
     private String city="柳州";
     private String area="鱼峰区";
     private TextView tvArea;
-
+    private OnFragmentInteractionListener listener;
+    private OnCinemaCreatedListener cinemaListensr;
     @Override
     protected void populate() {
+        //getActivity().findViewById(R.id.bar_title_sv).setVisibility(View.GONE);
+        listener.hideSearch();
         edtName=find(R.id.activity_cinema_dialog_edt);
         tvArea=find(R.id.activity_cinema_dialog_area);
         find(R.id.activity_cinema_dialog_yes_btn).setOnClickListener((View v) -> {
@@ -56,8 +60,14 @@ public class AddCinemaFragment extends BaseFragment {
             //adapter.add(cinema);
 
             edtName.setText("");
+            cinemaListensr.saveCinema(cinema);
 
-
+        });
+        find(R.id.activity_cinema_dialog_no_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cinemaListensr.cancelAddCinema();
+            }
         });
         find(R.id.activity_cinema_dialog_layout_area).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,4 +97,57 @@ public class AddCinemaFragment extends BaseFragment {
     public int getLayoutRes() {
         return R.layout.fragment_add_cinema;
     }
+
+    @Override
+    public void search(String kw) {
+
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try{
+            listener=(OnFragmentInteractionListener) context;
+            cinemaListensr=(OnCinemaCreatedListener) context;
+        }catch (ClassCastException e){
+            throw new ClassCastException(context.toString()+"必须实现OnFragmentInteractionListener ");
+        }
+    }
+
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (!hidden){
+            listener.hideSearch();
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        listener=null;
+        cinemaListensr=null;
+    }
+
+
+    public interface OnCinemaCreatedListener{
+
+        void cancelAddCinema();
+        void saveCinema(Cinema cinema);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

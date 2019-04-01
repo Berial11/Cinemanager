@@ -2,6 +2,7 @@ package net.lzzy.cinemanager.fragments;
 
 
 
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ListView;
 
@@ -25,6 +26,14 @@ public class CinemasFragment extends BaseFragment {
     private ListView lv;
     private List<Cinema> cinemas;
     private CinemaFactory factory=CinemaFactory.getInstance();
+    private GenericAdapter<Cinema> adapter;
+    private Cinema cinema;
+
+    public CinemasFragment(){}
+    public CinemasFragment(Cinema cinema){
+        this.cinema=cinema;
+    }
+
 
     @Override
     protected void populate() {
@@ -32,8 +41,11 @@ public class CinemasFragment extends BaseFragment {
         lv=find(R.id.activity_cinema_lv);
 //        View empty;
 //        lv.setEmptyView(empty);
+//        View empty=find(R.id.none_data_view_table);
+//        lv.setEmptyView(empty);
         cinemas=factory.get();
-        final GenericAdapter<Cinema> adapter=new GenericAdapter<Cinema>(getActivity(),R.layout.cinema_item,cinemas) {
+
+        adapter = new GenericAdapter<Cinema>(getActivity(),R.layout.cinema_item,cinemas) {
             @Override
             public void populate(ViewHolder viewHolder, Cinema cinema) {
                 viewHolder.setTextView(R.id.cinema_item_tv_name,cinema.getName())
@@ -51,11 +63,31 @@ public class CinemasFragment extends BaseFragment {
                 return factory.deleteCinema(cinema);
             }
         };
+        //lv.setEmptyView(find(R.id.fragment_cinema_none_date));
         lv.setAdapter(adapter);
+        if (cinema!=null){
+            save(cinema);
+        }
+    }
+
+    public void save(Cinema cinema){
+        adapter.add(cinema);
     }
 
     @Override
     public int getLayoutRes() {
         return R.layout.fragment_cinemas;
     }
+
+    @Override
+    public void search(String kw) {
+        cinemas.clear();
+        if (TextUtils.isEmpty(kw)){
+            cinemas.addAll(factory.get());
+        }else {
+            cinemas.addAll(factory.searchCinemas(kw));
+        }
+        adapter.notifyDataSetChanged();
+    }
+
 }

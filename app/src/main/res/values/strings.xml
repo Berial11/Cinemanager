@@ -1,5 +1,5 @@
 <resources>
-    <!--<string name="app_name">Cinemanager</string>-->
+    <string name="app_name">Cinemanager</string>
     <string name="bar_title_tv_my_order">我的订单</string>
     <string name="bar_title_tv_add_order">添加订单</string>
     <string name="bar_title_tv_view_cinema">查看影院</string>

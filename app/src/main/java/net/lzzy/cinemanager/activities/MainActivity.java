@@ -190,12 +190,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             orderFragment=new OrdersFragment();
             fragmentArray.put(R.id.bar_title_tv_my_order,orderFragment);
             //2019年4月1日12:10:32
+            transaction.add(R.id.fragment_container,orderFragment);
+
         }
+        transaction.hide(addOrderFragment).show(orderFragment).commit();
+        tvTitle.setText(titleArray.get(R.id.bar_title_tv_my_order));
 
     }
 
     @Override
     public void saveOrder(Order order) {
-
+        Fragment addOrderFragment=fragmentArray.get(R.id.bar_title_tv_add_order);
+        if (addOrderFragment==null){
+            return;
+        }
+        Fragment orderFragment=fragmentArray.get(R.id.bar_title_tv_my_order);
+        FragmentTransaction transaction=manager.beginTransaction();
+        if (orderFragment==null){
+            orderFragment=new OrdersFragment(order);
+            fragmentArray.put(R.id.bar_title_tv_my_order,orderFragment);
+            transaction.add(R.id.fragment_container,orderFragment);
+        }else {
+            ((OrdersFragment)orderFragment).save(order);
+        }
+        transaction.hide(addOrderFragment).show(orderFragment).commit();
+        tvTitle.setText(titleArray.get(R.id.bar_title_tv_my_order));
     }
+
 }

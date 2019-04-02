@@ -108,6 +108,15 @@ public class AddOrderFragment extends BaseFragment {
 
         });
 
+        find(R.id.add_order_choice_layout).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                picker.show(tvDate.getText().toString());
+            }
+        });
+        find(R.id.add_order_btn_cancel).setOnClickListener(v -> {
+            orderCreatedListener.cancelAddOrder();
+        });
     }
 
     @Override

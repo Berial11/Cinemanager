@@ -4,6 +4,7 @@ package net.lzzy.cinemanager.fragments;
 import android.app.AlertDialog;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -33,7 +34,8 @@ import java.util.List;
  */
 public class OrdersFragment extends BaseFragment {
     private ListView listView;
-    public static final float MIN_DISTANCE=100;
+    private static final float MIN_DISTANCE=100;
+    private static final String ARG_NEW_ORDER="argNewOrder";
     private List<Order> orders;
     private OrderFactory factory=OrderFactory.getInstance();
     private GenericAdapter<Order> adapter;
@@ -41,8 +43,16 @@ public class OrdersFragment extends BaseFragment {
     private float touchX1;
     private boolean isDelete=false;
     public OrdersFragment(){}
-    public OrdersFragment(Order order){
-        this.order=order;
+//    public OrdersFragment(Order order){
+//        this.order=order;
+//    }
+
+    public static OrdersFragment newInstance(Order order){
+        OrdersFragment fragment=new OrdersFragment();
+        Bundle args=new Bundle();
+        args.putParcelable(ARG_NEW_ORDER,order);
+        fragment.setArguments(args);
+        return fragment;
     }
 
 
@@ -67,6 +77,9 @@ public class OrdersFragment extends BaseFragment {
                                 .setPositiveButton("确定",(dialog, which) ->
                                         adapter.remove(order))
                                 .show();
+                        isDelete=!isDelete;
+                        int visible=isDelete?View.VISIBLE:View.GONE;
+                        btn.setVisibility(visible);
                     }
                 });
                 viewHolder.getConvertView().setOnTouchListener(new ViewUtils.AbstractTouchHandler() {

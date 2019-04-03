@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.SparseArray;
 import android.view.View;
@@ -29,7 +30,8 @@ import net.lzzy.cinemanager.utils.ViewUtils;
  */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener
         , OnFragmentInteractionListener,AddCinemaFragment.OnCinemaCreatedListener
-,AddOrderFragment.OnOrderCreatedListener{
+,AddOrderFragment.OnOrderCreatedListener,CinemasFragment.OnCinemaSelectedListener{
+    public static String EXTRA_CINEMA_ID;
     private FragmentManager manager =getSupportFragmentManager();
     private LinearLayout layoutMenu;
     private TextView tvTitle;
@@ -165,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         FragmentTransaction transaction=manager.beginTransaction();
         if (cinemasFragment==null){
             //创建CinemasFragment同时要传Cinema对象
-            cinemasFragment=new CinemasFragment(cinema);
+            cinemasFragment=CinemasFragment.newInstance(cinema);
             fragmentArray.put(R.id.bar_title_tv_view_cinema,cinemasFragment);
             transaction.add(R.id.fragment_container,cinemasFragment);
         }else {
@@ -207,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Fragment orderFragment=fragmentArray.get(R.id.bar_title_tv_my_order);
         FragmentTransaction transaction=manager.beginTransaction();
         if (orderFragment==null){
-            orderFragment=new OrdersFragment(order);
+            orderFragment=OrdersFragment.newInstance(order);
             fragmentArray.put(R.id.bar_title_tv_my_order,orderFragment);
             transaction.add(R.id.fragment_container,orderFragment);
         }else {
@@ -217,4 +219,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tvTitle.setText(titleArray.get(R.id.bar_title_tv_my_order));
     }
 
+    @Override
+    public void OnCinemaSelected(String cinemaId) {
+        Intent intent=new Intent(this,CinemaOrdersActivity.class);
+        intent.putExtra(EXTRA_CINEMA_ID,cinemaId);
+        startActivity(intent);
+    }
 }

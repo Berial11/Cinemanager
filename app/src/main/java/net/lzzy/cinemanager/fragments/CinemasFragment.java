@@ -2,13 +2,20 @@ package net.lzzy.cinemanager.fragments;
 
 
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import net.lzzy.cinemanager.R;
+import net.lzzy.cinemanager.activities.CinemaOrdersActivity;
+import net.lzzy.cinemanager.activities.MainActivity;
 import net.lzzy.cinemanager.models.Cinema;
 import net.lzzy.cinemanager.models.CinemaFactory;
+import net.lzzy.cinemanager.models.Order;
 import net.lzzy.sqllib.GenericAdapter;
 import net.lzzy.sqllib.ViewHolder;
 
@@ -25,15 +32,22 @@ public class CinemasFragment extends BaseFragment {
 
     private ListView lv;
     private List<Cinema> cinemas;
+    private static final String ARG_NEW_CINEMA="argNewCinema";
     private CinemaFactory factory=CinemaFactory.getInstance();
     private GenericAdapter<Cinema> adapter;
     private Cinema cinema;
-
+    private OnCinemaSelectedListener listener;
     public CinemasFragment(){}
-    public CinemasFragment(Cinema cinema){
-        this.cinema=cinema;
+//    public CinemasFragment(Cinema cinema){
+//        this.cinema=cinema;
+//    }
+    public static CinemasFragment newInstance(Cinema cinema){
+        CinemasFragment fragment=new CinemasFragment();
+        Bundle args=new Bundle();
+        args.putParcelable(ARG_NEW_CINEMA,cinema);
+        fragment.setArguments(args);
+        return fragment;
     }
-
 
     @Override
     protected void populate() {
@@ -65,6 +79,12 @@ public class CinemasFragment extends BaseFragment {
         };
         //lv.setEmptyView(find(R.id.fragment_cinema_none_date));
         lv.setAdapter(adapter);
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                listener.OnCinemaSelected(adapter.getItem(position).getId().toString());
+            }
+        });
         if (cinema!=null){
             save(cinema);
         }
@@ -90,4 +110,25 @@ public class CinemasFragment extends BaseFragment {
         adapter.notifyDataSetChanged();
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnCinemaSelectedListener){
+            listener=(OnCinemaSelectedListener) context;
+        }else {
+            throw new ClassCastException(context.toString()+"必须实现OnCinemaSelectedListener");
+        }
+
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        listener=null;
+    }
+
+    public interface OnCinemaSelectedListener{
+        void OnCinemaSelected(String cinemaId);
+
+    }
 }

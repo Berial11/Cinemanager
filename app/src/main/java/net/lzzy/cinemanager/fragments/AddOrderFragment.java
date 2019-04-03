@@ -56,10 +56,12 @@ public class AddOrderFragment extends BaseFragment {
                 android.R.layout.simple_spinner_dropdown_item,cinemas));
         find(R.id.add_order_btn_save).setOnClickListener(v -> {
             String sCinemaName=spinner.getSelectedItem().toString();
+            //region
             //String sCinemaId= CinemaFactory.getInstance().getIdByName(sCinemaName);
             //UUID uCinemaId=UUID.fromString(sCinemaId);
             //String sid=CinemaFactory.getInstance().getById(spinner.getSelectedItemPosition())
             //List<Cinema> cinemas=CinemaFactory.getInstance().get();
+            //endregion
             Cinema sCinema = cinemas.get(spinner.getSelectedItemPosition());
             UUID uCinemaId=sCinema.getId();
 
